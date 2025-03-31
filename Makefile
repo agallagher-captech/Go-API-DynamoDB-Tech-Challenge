@@ -15,7 +15,7 @@ mock-gen:
 	@$(MAKE) LOG MSG_TYPE=info LOG_MESSAGE="Generating mocks..."
 	@$(MAKE) LOG MSG_TYPE=debug LOG_MESSAGE="Delete existing mocks"
 	@find ./internal -d | grep ^.*mock$$ | xargs rm -rf
-	@mockery
+	@mockery --all
 	@$(MAKE) LOG MSG_TYPE=success LOG_MESSAGE="Mocks generated"
 
 .PHONY: start-web-app
