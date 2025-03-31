@@ -1,0 +1,11 @@
+with-expecter: true
+packages:
+  github.com/agallagher-captech/blog/internal/services:
+    config:
+      filename: "{{.InterfaceName | snakecase}}.go"
+      dir: "{{.InterfaceDir}}/mock"
+      mockname: "{{.InterfaceName | camelcase | firstUpper}}"
+      outpkg: "mock"
+      inpackage: false
+    interfaces:
+      dynamoClient:
