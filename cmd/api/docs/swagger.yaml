@@ -1,5 +1,14 @@
 basePath: /api
 definitions:
+  handlers.createUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
   handlers.healthResponse:
     properties:
       status:
@@ -13,7 +22,7 @@ definitions:
         type: string
       name:
         type: string
-      username:
+      password:
         type: string
     type: object
 externalDocs:
@@ -48,6 +57,42 @@ paths:
       summary: Health Check
       tags:
       - health
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user in the system
+      parameters:
+      - description: User creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.userResponse'
+        "400":
+          description: Validation error(s)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: User already exists
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create User
+      tags:
+      - user
   /users/{id}:
     get:
       consumes:

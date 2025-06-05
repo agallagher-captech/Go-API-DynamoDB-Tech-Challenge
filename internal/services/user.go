@@ -22,6 +22,7 @@ type dynamoClient interface {
 }
 
 var ErrNotFound = fmt.Errorf("item not found")
+var ErrAlreadyExists = fmt.Errorf("item already exists")
 
 // UsersService is a service capable of performing CRUD operations for
 // models.User models.
@@ -41,7 +42,7 @@ func NewUsersService(logger *slog.Logger, client dynamoClient) *UsersService {
 // CreateUser attempts to create the provided user, returning a fully hydrated
 // models.User or an error.
 // CreateUser attempts to create a new user in the database. It returns an error if the user could not be created.
-func (s *UsersService) CreateUser(ctx context.Context, user models.User) error {
+func (s *UsersService) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	s.logger.InfoContext(ctx, "Creating user", "id", user.ID)
 
 	// Check if the user already exists
@@ -57,7 +58,7 @@ func (s *UsersService) CreateUser(ctx context.Context, user models.User) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf(
+		return models.User{}, fmt.Errorf(
 			"[in main.UsersService.CreateUser] failed to check if user exists: %w",
 			err,
 		)
@@ -65,7 +66,7 @@ func (s *UsersService) CreateUser(ctx context.Context, user models.User) error {
 
 	// If the user already exists, return an error
 	if result.Item != nil {
-		return fmt.Errorf(
+		return models.User{}, fmt.Errorf(
 			"[in main.UsersService.CreateUser] user already exists.",
 		)
 	}
@@ -73,7 +74,7 @@ func (s *UsersService) CreateUser(ctx context.Context, user models.User) error {
 	// Marshal the user struct into a map of DynamoDB AttributeValues
 	item, err := attributevalue.MarshalMap(user)
 	if err != nil {
-		return fmt.Errorf(
+		return models.User{}, fmt.Errorf(
 			"[in main.UsersService.CreateUser] failed to marshal user: %w",
 			err,
 		)
@@ -94,13 +95,13 @@ func (s *UsersService) CreateUser(ctx context.Context, user models.User) error {
 		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 	})
 	if err != nil {
-		return fmt.Errorf(
+		return models.User{}, fmt.Errorf(
 			"[in main.UsersService.CreateUser] failed to put item: %w",
 			err,
 		)
 	}
 
-	return nil
+	return user, nil
 }
 
 // ReadUser attempts to read a user from the database using the provided id. A

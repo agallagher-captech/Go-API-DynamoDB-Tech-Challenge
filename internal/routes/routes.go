@@ -38,4 +38,7 @@ func AddRoutes(mux *http.ServeMux, logger *slog.Logger, usersService *services.U
 
 	// Read a user
 	mux.Handle("GET /api/users/{id}", handlers.HandleReadUser(logger, usersService))
+
+	// Create a user
+	mux.Handle("/api/users", handlers.HandleCreateUser(logger, usersService))
 }

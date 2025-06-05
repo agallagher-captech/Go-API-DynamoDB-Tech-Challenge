@@ -1,5 +1,11 @@
 # Masitda Monday
 
+## June 5 2025
+Input model validation - added decodeValid interface, will use for put/post requests where the request has a body
+Started Create User functionality, struggled with whether to have `routes.go` have just the url or "POST /api/users" (copilot says does not http serve mux does not support having POST at the beginning), need to parse through this error:
+```
+"level":"ERROR","msg":"failed to create user","error":"[in main.UsersService.CreateUser] failed to put item: operation error DynamoDB: PutItem, https response error StatusCode: 400, RequestID: e5978ea9-e877-454a-85cc-d5282cfa5754, api error ValidationException: One or more parameter values are not valid. A value specified for a secondary index key is not supported. The AttributeValue for a key attribute cannot contain an empty string value. IndexName: GSI1, IndexKey: GSI1SK"}
+```
 ## Adding Health Check and Setting Up Unit Tests with Mockery
 
 ### Summary of Changes
