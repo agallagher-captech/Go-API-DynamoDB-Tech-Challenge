@@ -1,6 +1,6 @@
 # Masitda Monday
 
-## 3/31/25: Adding Health Check and Setting Up Unit Tests with Mockery
+## Adding Health Check and Setting Up Unit Tests with Mockery
 
 ### Summary of Changes
 Today, I made significant progress in the project by implementing a health check endpoint, writing my first unit test, and setting up a framework for mocking dependencies using `mockery`. Below are the key updates:
@@ -13,11 +13,11 @@ Today, I made significant progress in the project by implementing a health check
    - Started writing a unit test for the `ReadUser` method in `services/user_test.go`. This required mocking the DynamoDB client to simulate database interactions without making actual AWS calls.
 
 3. **Setting Up Mockery**:
-   - Configured a `mockery.yaml` file to streamline the process of generating mocks for interfaces. This file specifies:
+   - Configured a `.mockery.yaml` file to streamline the process of generating mocks for interfaces. This file specifies:
      - The output directory for generated mocks (`mocks`).
      - Naming conventions for mock types (e.g., camel case).
    - Used the `make mock-gen` command to generate a mock for the DynamoDB client. This mock is now used in the `user_test.go` file to test the `ReadUser` method.
-     - Updated it to use the tag `@mockery --all` to resolve this error: ```31 Mar 25 15:49 EDT FTL Use --name to specify the name of the interface or --all for all interfaces found dry-run=false version=v2.49.0```
+     - Updated it to use the tag `@mockery --all` to resolve this error: ```EDT FTL Use --name to specify the name of the interface or --all for all interfaces found dry-run=false version=v2.49.0```
 
 ### Insights on Mockery
 Mockery is a tool that automates the creation of mock implementations for interfaces, making it easier to write unit tests for code that depends on external systems or services. Here’s how it works in this project:
@@ -30,6 +30,6 @@ By using `mockery`, I was able to focus on writing meaningful tests without the 
 ### Next Steps
 - Complete the unit test for the `ReadUser` method in `services/user_test.go`.
 - Add more unit tests for other services and handlers to improve test coverage.
-- Explore additional diagnostics for the health check endpoint to provide more detailed application status.
+- Add Create User functionality.
 
 Today’s work established a strong foundation for testing and mocking in the project, ensuring that future development is well-supported by robust testing practices.

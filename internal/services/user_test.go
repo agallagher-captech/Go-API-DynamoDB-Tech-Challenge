@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 	"testing"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
+
+var testErr = errors.New("test error")
 
 func TestUsersService_ReadUser(t *testing.T) {
 	testcases := map[string]struct {
@@ -69,6 +73,32 @@ func TestUsersService_ReadUser(t *testing.T) {
 			},
 			expectedError: nil,
 		},
+		"user not found": {
+			mockCalled: true,
+			mockInput: []any{
+				context.TODO(),
+				&dynamodb.GetItemInput{
+					TableName: aws.String("BlogContent"),
+					Key: map[string]types.AttributeValue{
+						"PK": &types.AttributeValueMemberS{
+							Value: "USER#00000000-0000-0000-0000-000000000000",
+						},
+						"SK": &types.AttributeValueMemberS{
+							Value: "PROFILE",
+						},
+					},
+				},
+			},
+			mockOutput: []any{
+				&dynamodb.GetItemOutput{
+					Item: nil, // Simulate no item found
+				},
+				errors.New("failed to get item: item not found"),
+			},
+			input:          uuid.MustParse("00000000-0000-0000-0000-000000000000"), // Non-existent user ID
+			expectedOutput: models.User{},                                          // Expect an empty user object
+			expectedError:  fmt.Errorf("failed to get item: %w", testErr),          // Replace with the actual error returned by your service
+		},
 	}
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
@@ -89,7 +119,13 @@ func TestUsersService_ReadUser(t *testing.T) {
 
 			output, err := userService.ReadUser(context.TODO(), tc.input)
 
-			assert.Equal(t, tc.expectedError, err, "errors did not match")
+			// validate errors
+			if tc.expectedError != nil {
+				//assert.Equal(t, tc.expectedError.Error(), err, "errors did not match")
+				assert.ErrorIs(t, err, testErr, "error did not wrap the expected error")
+				assert.ErrorContains(t, err, testErr.Error(), "error did not contain the expected message")
+				assert.ErrorContains(t, err, "failed to get item", "error did not contain the expected message")
+			}
 			assert.Equal(t, tc.expectedOutput, output, "returned data does not match")
 
 			if tc.mockCalled {
