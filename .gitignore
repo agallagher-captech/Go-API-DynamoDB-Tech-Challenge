@@ -22,4 +22,4 @@ app.env
 
 **/.env
 .idea
-docker/dynamodb/*
+docker/dynamodb/
