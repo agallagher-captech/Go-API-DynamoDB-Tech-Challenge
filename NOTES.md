@@ -1,5 +1,10 @@
 # Masitda Monday
 
+## June 6 2025
+Completed Create User. Added additional verification on create user input. Updated check for preexisting user to check based on user email.
+
+TODO: add a GSI to the dynamo table for email, to make the query for lookup by email faster
+
 ## June 5 2025
 Input model validation - added decodeValid interface, will use for put/post requests where the request has a body
 Started Create User functionality, struggled with whether to have `routes.go` have just the url or "POST /api/users" (copilot says does not http serve mux does not support having POST at the beginning), need to parse through this error:

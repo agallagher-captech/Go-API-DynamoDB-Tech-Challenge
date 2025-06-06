@@ -18,6 +18,7 @@ type dynamoClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 	DeleteItem(ctx context.Context, params *dynamodb.DeleteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
+	Scan(ctx context.Context, params *dynamodb.ScanInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error)
 	// Add any other methods you might need from the DynamoDB client
 }
 
@@ -44,6 +45,24 @@ func NewUsersService(logger *slog.Logger, client dynamoClient) *UsersService {
 // CreateUser attempts to create a new user in the database. It returns an error if the user could not be created.
 func (s *UsersService) CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	s.logger.InfoContext(ctx, "Creating user", "id", user.ID)
+
+	// Interim: Scan the table for an existing user with the same email
+	// TODO: Replace this with a GSI key query for better performance
+	scanInput := &dynamodb.ScanInput{
+		TableName:        aws.String("BlogContent"),
+		FilterExpression: aws.String("email = :email"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":email": &types.AttributeValueMemberS{Value: user.Email},
+		},
+		ProjectionExpression: aws.String("email"),
+	}
+	scanResult, err := s.client.Scan(ctx, scanInput)
+	if err != nil {
+		return models.User{}, fmt.Errorf("[in main.UsersService.CreateUser] failed to scan for email: %w", err)
+	}
+	if len(scanResult.Items) > 0 {
+		return models.User{}, ErrAlreadyExists
+	}
 
 	// Check if the user already exists
 	result, err := s.client.GetItem(ctx, &dynamodb.GetItemInput{

@@ -77,9 +77,10 @@ func HandleReadUser(logger *slog.Logger, userReader userReader) http.Handler {
 
 		// Convert our models.User domain model into a response model.
 		response := userResponse{
-			ID:    user.ID.UUID,
-			Name:  user.Name,
-			Email: user.Email,
+			ID:       user.ID.UUID,
+			Name:     user.Name,
+			Email:    user.Email,
+			Password: user.Password,
 		}
 
 		// Encode the response model as JSON

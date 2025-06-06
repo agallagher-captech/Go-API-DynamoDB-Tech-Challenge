@@ -6,9 +6,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/agallagher-captech/blog/internal/models"
 	"github.com/agallagher-captech/blog/internal/services"
+	"github.com/google/uuid"
 )
 
 // createUserRequest represents the input model for creating a user.
@@ -21,12 +24,28 @@ type createUserRequest struct {
 // Valid checks the createUserRequest for any problems.
 func (r createUserRequest) Valid(ctx context.Context) map[string]string {
 	problems := make(map[string]string)
-	// check that name is not blank
-	if r.Name == "" {
+	if strings.TrimSpace(r.Name) == "" {
 		problems["name"] = "name is required"
+	} else if len(r.Name) < 2 {
+		problems["name"] = "name must be at least 2 characters"
+	}
+	if strings.TrimSpace(r.Email) == "" {
+		problems["email"] = "email is required"
+	} else if !isValidEmail(r.Email) {
+		problems["email"] = "invalid email format"
+	}
+	if len(r.Password) < 8 {
+		problems["password"] = "password must be at least 8 characters"
 	}
 
 	return problems
+}
+
+func isValidEmail(email string) bool {
+	// A simple regex for email validation
+	const emailRegex = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(emailRegex)
+	return re.MatchString(email)
 }
 
 // userCreator represents a type capable of creating a user in storage.
@@ -72,6 +91,7 @@ func HandleCreateUser(logger *slog.Logger, userCreator userCreator) http.Handler
 		// Get user from request body
 		var user models.User
 		user = models.User{
+			ID:       models.UUID{UUID: uuid.New()},
 			Name:     req.Name,
 			Email:    req.Email,
 			Password: req.Password,
@@ -79,6 +99,7 @@ func HandleCreateUser(logger *slog.Logger, userCreator userCreator) http.Handler
 
 		user.SK = "PROFILE"
 		user.GSI1PK = "USER"
+		user.GSI1SK = "USER#" + user.ID.String() // GSI1SK must be unique for each user
 
 		// Create the user
 		createdUser, err := userCreator.CreateUser(ctx, user)

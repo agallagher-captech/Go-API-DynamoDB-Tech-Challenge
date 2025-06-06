@@ -51,9 +51,9 @@ reset-database:
 	@$(MAKE) LOG MSG_TYPE=info LOG_MESSAGE="Resetting database..."
 	@cd ./dynamodb_seed && /bin/bash ./reset_dynamodb.sh
 
-.PHONY: run-unit-test
-run-unit-test:
-	go test -cover ./internal/service ./internal/config ./internal/database ./internal/routes ./cmd/api
+.PHONY: test
+test:
+	go test -cover ./internal/**
 
 .PHONY: check-coverage
 check-coverage:

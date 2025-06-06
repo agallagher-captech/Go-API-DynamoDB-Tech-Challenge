@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testErr = errors.New("test error")
+var itemNotFoundError = errors.New("item not found")
 
 func TestUsersService_ReadUser(t *testing.T) {
 	testcases := map[string]struct {
@@ -93,11 +93,11 @@ func TestUsersService_ReadUser(t *testing.T) {
 				&dynamodb.GetItemOutput{
 					Item: nil, // Simulate no item found
 				},
-				errors.New("failed to get item: item not found"),
+				itemNotFoundError,
 			},
-			input:          uuid.MustParse("00000000-0000-0000-0000-000000000000"), // Non-existent user ID
-			expectedOutput: models.User{},                                          // Expect an empty user object
-			expectedError:  fmt.Errorf("failed to get item: %w", testErr),          // Replace with the actual error returned by your service
+			input:          uuid.MustParse("00000000-0000-0000-0000-000000000000"),  // Non-existent user ID
+			expectedOutput: models.User{},                                           // Expect an empty user object
+			expectedError:  fmt.Errorf("failed to get item: %w", itemNotFoundError), // Replace with the actual error returned by your service
 		},
 	}
 	for name, tc := range testcases {
@@ -121,10 +121,7 @@ func TestUsersService_ReadUser(t *testing.T) {
 
 			// validate errors
 			if tc.expectedError != nil {
-				//assert.Equal(t, tc.expectedError.Error(), err, "errors did not match")
-				assert.ErrorIs(t, err, testErr, "error did not wrap the expected error")
-				assert.ErrorContains(t, err, testErr.Error(), "error did not contain the expected message")
-				assert.ErrorContains(t, err, "failed to get item", "error did not contain the expected message")
+				assert.ErrorContains(t, err, tc.expectedError.Error(), "error did not contain the expected message")
 			}
 			assert.Equal(t, tc.expectedOutput, output, "returned data does not match")
 

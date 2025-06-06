@@ -318,6 +318,80 @@ func (_c *DynamoClient_Query_Call) RunAndReturn(run func(context.Context, *dynam
 	return _c
 }
 
+// Scan provides a mock function with given fields: ctx, params, optFns
+func (_m *DynamoClient) Scan(ctx context.Context, params *dynamodb.ScanInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Scan")
+	}
+
+	var r0 *dynamodb.ScanOutput
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error)); ok {
+		return rf(ctx, params, optFns...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) *dynamodb.ScanOutput); ok {
+		r0 = rf(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.ScanOutput)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = rf(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DynamoClient_Scan_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Scan'
+type DynamoClient_Scan_Call struct {
+	*mock.Call
+}
+
+// Scan is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *dynamodb.ScanInput
+//   - optFns ...func(*dynamodb.Options)
+func (_e *DynamoClient_Expecter) Scan(ctx interface{}, params interface{}, optFns ...interface{}) *DynamoClient_Scan_Call {
+	return &DynamoClient_Scan_Call{Call: _e.mock.On("Scan",
+		append([]interface{}{ctx, params}, optFns...)...)}
+}
+
+func (_c *DynamoClient_Scan_Call) Run(run func(ctx context.Context, params *dynamodb.ScanInput, optFns ...func(*dynamodb.Options))) *DynamoClient_Scan_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*dynamodb.Options))
+			}
+		}
+		run(args[0].(context.Context), args[1].(*dynamodb.ScanInput), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *DynamoClient_Scan_Call) Return(_a0 *dynamodb.ScanOutput, _a1 error) *DynamoClient_Scan_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *DynamoClient_Scan_Call) RunAndReturn(run func(context.Context, *dynamodb.ScanInput, ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error)) *DynamoClient_Scan_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewDynamoClient creates a new instance of DynamoClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewDynamoClient(t interface {
